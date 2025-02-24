@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class Rating {
 
     private String ratingId;
-    private String userIdId;
+    private String userId;
     private String hotelId;
     private int rating;
     private String feedback;

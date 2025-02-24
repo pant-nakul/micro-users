@@ -4,6 +4,8 @@ import com.techcret.service.user.entities.Hotel;
 import com.techcret.service.user.entities.Rating;
 import com.techcret.service.user.entities.User;
 import com.techcret.service.user.exceptions.ResourceNotFoundException;
+import com.techcret.service.user.externalServices.HotelService;
+import com.techcret.service.user.externalServices.RatingService;
 import com.techcret.service.user.repositories.UserRepository;
 import com.techcret.service.user.services.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +27,10 @@ public class UserServiceImpl implements UserService {
     UserRepository userRepository;
     @Autowired
     RestTemplate restTemplate;
+    @Autowired
+    HotelService hotelService;
+    @Autowired
+    RatingService ratingService;
 
 
     /**
@@ -57,13 +63,12 @@ public class UserServiceImpl implements UserService {
     }
 
     public User populateUserData(User user) {
-        Rating[] ratingsOfUser = restTemplate.getForObject("http://RATINGSERVICE/ratings/user/" + user.getUserId(), Rating[].class);
+        Rating[] ratingsOfUser = ratingService.getRatingsForUser(user.getUserId());
 
         List<Rating> ratings = Arrays.stream(ratingsOfUser).toList();
         if (ratings != null) {
             ratings.stream().peek(rating -> {
-                ResponseEntity<Hotel> hotelEntity = restTemplate.getForEntity("http://HOTELSERVICE/hotels/" + rating.getHotelId(), Hotel.class);
-                Hotel hotel = hotelEntity.getBody();
+                Hotel hotel = hotelService.getHotel(rating.getHotelId());
                 rating.setHotel(hotel);
             }).collect(Collectors.toList());
         }
