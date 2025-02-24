@@ -1,5 +1,7 @@
 package com.techcret.service.user.entities;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,14 +11,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Rating {
+public class Hotel {
 
-    private String ratingId;
-    private String userIdId;
     private String hotelId;
-    private int rating;
-    private String feedback;
-
-    Hotel hotel;
+    private String name;
+    private String location;
+    private String about;
 
 }
