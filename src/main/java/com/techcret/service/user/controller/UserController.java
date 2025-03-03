@@ -3,6 +3,7 @@ package com.techcret.service.user.controller;
 import com.techcret.service.user.entities.User;
 import com.techcret.service.user.services.UserService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,7 +33,10 @@ public class UserController {
     //get single user
     @GetMapping("/{userId}")
     @CircuitBreaker(name = "ratingHotelBreaker", fallbackMethod = "ratingHotelFallbackSingleUser")
+    @Retry(name = "ratingHotelService", fallbackMethod = "ratingHotelFallbackSingleUser")
     public ResponseEntity<User> getSingleUser(@PathVariable String userId){
+        log.info("Retry Count : {}", retryCount);
+        retryCount ++;
         User user = userService.getUser(userId);
         return ResponseEntity.ok(user);
     }
@@ -43,7 +47,9 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
+    int retryCount = 1;
     public ResponseEntity<User> ratingHotelFallbackSingleUser(String userId, Exception e){
+
         log.info("Circuit breaker executing from ratingHotelFallbackSingleUser, Exception  : {}", e.getMessage());
         User user = User.builder()
                 .userId(userId)
